@@ -22,6 +22,7 @@ describe("Uploader & Integration", () => {
       const apiKey = headers.get("x-api-key");
       const apiHash = headers.get("x-api-hash");
       const file = formData.get("file") as File;
+      const fileHash = formData.get("file_hash") as string;
       const bucketId = formData.get("bucket_id") as string;
       const name = formData.get("name") as string;
       const metadata = formData.get("metadata") as string;
@@ -37,6 +38,7 @@ describe("Uploader & Integration", () => {
         name,
         metadata,
         store,
+        fileHash,
         fileName: name,
         fileContent,
       });
@@ -105,6 +107,11 @@ describe("Uploader & Integration", () => {
     expect(req.metadata).toBe(JSON.stringify({ source: "unit_test" }));
     expect(req.store).toBe("local");
     expect(req.fileContent).toBe("hello world test content");
+    expect(req.fileHash).toBe(
+      new Bun.CryptoHasher("sha256")
+        .update(Buffer.from("hello world test content"))
+        .digest("hex")
+    );
   });
 
   test("does not send auth headers when apiKey/apiHash are undefined", async () => {

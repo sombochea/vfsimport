@@ -72,6 +72,10 @@ export async function uploadRow(
     const bunFile = Bun.file(tempFilePath, { type: resolvedMime });
     formData.append("file", bunFile, filename);
 
+    // Compute SHA-256 file hash
+    const fileHash = new Bun.CryptoHasher("sha256").update(buffer).digest("hex");
+    formData.append("file_hash", fileHash);
+
     if (row.name || filename) {
       formData.append("name", row.name || filename);
     }
